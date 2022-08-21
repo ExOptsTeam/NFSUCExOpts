@@ -3,7 +3,7 @@
 
 #include "EALocalizerManager.h"
 
-char* ExOptsTeamStr = "NFSUC Extra Options - ©2021 ExOpts Team. No rights reserved.";
+char* ExOptsTeamStr = "NFSUC Extra Options - ©2022 ExOpts Team. No rights reserved.";
 char newCopyrightStr[255];
 
 void __fastcall FE_FESplashScreen_InitializeScreenAptFuncs(DWORD* _FESplashScreen, void* EDX_Unused)

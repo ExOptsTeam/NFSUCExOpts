@@ -8,7 +8,7 @@
 
 //variables
 int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights, hotkeyFreezeCamera, hotkeyUnlockAllThings, hotkeyAutoDrive, CareerSingleRace, CareerBattle, CareerChallenge, TrafficLow, TrafficMed, TrafficHigh;
-bool EnableSaveLoadHotPos, ShowLanguageSelectScreen, ExOptsTeamTakeOver, EnableDebugWorldCamera, UnlockAllThings, ForceCollectorsEdition, EnableHeatLevelOverride, SkipMovies, SkipNISs, EnableSound, EnableMusic, ShowMessage, SkipCareerIntro, ProducerDemo, SkipPSA, DisableBootupOnlineLogin;
+bool EnableSaveLoadHotPos, ShowLanguageSelectScreen, ExOptsTeamTakeOver, EnableDebugWorldCamera, UnlockAllThings, ForceCollectorsEdition, EnableHeatLevelOverride, SkipMovies, SkipNISs, EnableSound, EnableMusic, ShowMessage, SkipCareerIntro, ProducerDemo, SkipPSA, DisableBootupOnlineLogin, DisableDoubleTapBrakeToReverse;
 char const* PlayerName;
 float GameSpeed, MinHeatLevel, MaxHeatLevel;
 
@@ -55,6 +55,7 @@ void Init()
 	PlayerName = _PlayerName.c_str();
 	UnlockAllThings = iniReader.ReadInteger("Gameplay", "UnlockAllThings", 0) != 0;
 	ForceCollectorsEdition = iniReader.ReadInteger("Gameplay", "ForceCollectorsEdition", 1) != 0;
+	DisableDoubleTapBrakeToReverse = iniReader.ReadInteger("Gameplay", "DisableDoubleTapBrakeToReverse", 1) != 0;
 
 	// Pursuit
 	EnableHeatLevelOverride = iniReader.ReadInteger("Pursuit", "HeatLevelOverride", 0) == 1;
@@ -134,6 +135,12 @@ void Init()
 	if (ExOptsTeamTakeOver)
 	{
 		injector::WriteMemory(0xBEC0E0, &FE_FESplashScreen_InitializeScreenAptFuncs, true);
+	}
+
+	// Disable Double-Tap Brake to shift to Reverse
+	if (DisableDoubleTapBrakeToReverse)
+	{
+		injector::WriteMemory<float*>(0x428DC7, &ZeroFloat, true); // disable double tap to reverse
 	}
 
 	// Handle Misc Options

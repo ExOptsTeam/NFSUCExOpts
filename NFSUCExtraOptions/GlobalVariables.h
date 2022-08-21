@@ -24,3 +24,5 @@
 #define _Tweak_GameSpeed 0xD54610
 #define _Camera_StopUpdating 0xD89950
 #define _IsCollectorsEdition 0xDAA166
+
+float ZeroFloat = 0.0f;
