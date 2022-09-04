@@ -16,13 +16,17 @@
 #define _IsMemcardEnabled 0xD3CED0
 #define _SkipCareerIntro 0xDAA15B
 #define _ProducerDemo 0xDAA15C
+#define _ForceCarLOD 0xD3CED8
+#define _ForceTireLOD 0xD3CEDC
 #define _CameraDebugWatchCar 0xD89951
 #define _mToggleCar 0xD89990
 #define _PlayerPVehicle 0xDE93E0
+#define _PlayerIPlayer 0xDE99E8
 #define _SaveHotPosition 0x1336494
 #define _LoadHotPosition 0x1336498
 #define _Tweak_GameSpeed 0xD54610
 #define _Camera_StopUpdating 0xD89950
 #define _IsCollectorsEdition 0xDAA166
+#define _CarSelectTireSteerAngle 0xD32268
 
 float ZeroFloat = 0.0f;

@@ -103,6 +103,7 @@ copy "$(TargetDir)*.pdb" "G:\Oyunlar\Need for Speed Undercover\scripts"  /y</Com
     <ClInclude Include="FESplashScreen.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GlobalVariables.h" />
+    <ClInclude Include="Helpers.h" />
     <ClInclude Include="HotkeyStuff.h" />
     <ClInclude Include="InGameFunctions.h" />
     <ClInclude Include="resource.h" />

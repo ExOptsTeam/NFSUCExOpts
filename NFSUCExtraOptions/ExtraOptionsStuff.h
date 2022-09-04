@@ -5,12 +5,13 @@
 
 #include "GlobalVariables.h"
 #include "InGameFunctions.h"
+#include "Helpers.h"
 
 //variables
-int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights, hotkeyFreezeCamera, hotkeyUnlockAllThings, hotkeyAutoDrive, CareerSingleRace, CareerBattle, CareerChallenge, TrafficLow, TrafficMed, TrafficHigh;
+int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights, hotkeyFreezeCamera, hotkeyUnlockAllThings, hotkeyAutoDrive, CareerSingleRace, CareerBattle, CareerChallenge, TrafficLow, TrafficMed, TrafficHigh, ForceCarLOD, ForceTireLOD;
 bool EnableSaveLoadHotPos, ShowLanguageSelectScreen, ExOptsTeamTakeOver, EnableDebugWorldCamera, UnlockAllThings, ForceCollectorsEdition, EnableHeatLevelOverride, SkipMovies, SkipNISs, EnableSound, EnableMusic, ShowMessage, SkipCareerIntro, ProducerDemo, SkipPSA, DisableBootupOnlineLogin, DisableDoubleTapBrakeToReverse;
 char const* PlayerName;
-float GameSpeed, MinHeatLevel, MaxHeatLevel;
+float GameSpeed, MinHeatLevel, MaxHeatLevel, CarSelectTireSteerAngle;
 
 #include "EAMemcard.h"
 #include "FESplashScreen.h"
@@ -46,6 +47,7 @@ void Init()
 
 	// Menu
 	ShowLanguageSelectScreen = iniReader.ReadInteger("Menu", "ShowLanguageSelectScreen", 0) != 0;
+	CarSelectTireSteerAngle = iniReader.ReadFloat("Menu", "CarSelectTireSteerAngle", 13.0f);
 	ExOptsTeamTakeOver = iniReader.ReadInteger("Menu", "DisableTakeover", 0) == 0;
 
 	// Gameplay
@@ -72,6 +74,8 @@ void Init()
 	ShowMessage = iniReader.ReadInteger("Misc", "ShowMessage", 1) != 0;
 	SkipCareerIntro = iniReader.ReadInteger("Misc", "SkipCareerIntro", 0) != 0;
 	ProducerDemo = iniReader.ReadInteger("Misc", "ProducerDemo", 0) != 0;
+	ForceCarLOD = iniReader.ReadInteger("Misc", "ForceCarLOD", -1);
+	ForceTireLOD = iniReader.ReadInteger("Misc", "ForceTireLOD", -1);
 
 	// Restrictions (wrap values around)
 	CareerSingleRace %= 8;
@@ -100,7 +104,7 @@ void Init()
 
 	// PSAScreen disable - reroute it to the MovieScreen, because if we actually disable it, game doesn't finish loading everything
 	if (SkipPSA)
-		injector::WriteMemory<unsigned char>(0x005E774B, 0x3A, true);
+		injector::WriteMemory<BYTE>(0x005E774B, 0x3A, true);
 
 	// Language Select Screen
 	if (ShowLanguageSelectScreen)
@@ -151,7 +155,14 @@ void Init()
 	if (EnableMusic) injector::WriteMemory<BYTE>(_IsAudioStreamingEnabled, EnableMusic, true);
 	if (SkipCareerIntro) injector::WriteMemory<BYTE>(_SkipCareerIntro, SkipCareerIntro, true);
 	if (ProducerDemo) injector::WriteMemory<BYTE>(_ProducerDemo, ProducerDemo, true);
+
+	// Force Car and Tire LOD
+	injector::WriteMemory<int>(_ForceCarLOD, ForceCarLOD, true);
+	injector::WriteMemory<int>(_ForceTireLOD, ForceTireLOD, true);
 	
+	// Menu Front Tire Angle
+	injector::WriteMemory<float>(_CarSelectTireSteerAngle, CarSelectTireSteerAngle, true);
+
 	// Hook the hotkey detection to the renderer
 	injector::MakeCALL(0x7B44EE, Thing, true); //eDisplayFrame
 }

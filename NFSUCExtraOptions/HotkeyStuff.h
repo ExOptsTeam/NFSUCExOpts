@@ -140,7 +140,7 @@ void Thing()
 	{
 		copLightsEnabled = !copLightsEnabled;
 
-		DWORD* PlayerPVehicle = *(DWORD**)_PlayerPVehicle;
+		DWORD* PlayerPVehicle = GetPlayerPVehicle();
 
 		if (PlayerPVehicle)
 		{
@@ -158,7 +158,7 @@ void Thing()
 	// Headlights
 	if ((GetAsyncKeyState(hotkeyToggleHeadlights) & 1) && (TheGameFlowManager == 6) && IsOnFocus && IsNotPaused) // When pressed "Toggle Head Lights" key
 	{
-		DWORD* PlayerPVehicle = *(DWORD**)_PlayerPVehicle;
+		DWORD* PlayerPVehicle = GetPlayerPVehicle();
 
 		if (PlayerPVehicle)
 		{
