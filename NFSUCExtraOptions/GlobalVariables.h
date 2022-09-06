@@ -25,8 +25,18 @@
 #define _SaveHotPosition 0x1336494
 #define _LoadHotPosition 0x1336498
 #define _Tweak_GameSpeed 0xD54610
+#define _Tweak_ForceStraightPursuit 0xD82118
+#define _Tweak_RadarRange 0xD2A168
+#define _Tweak_SpeedingLimit 0xBFC140
+#define _Tweak_RacingLimit 0xBFC144
+#define _Tweak_RecklessDrivingLimit 0xBFC148
+#define _Tweak_ForcePursuitThreatLevel 0xD1F0C4
+#define _Tweak_ThreatRangeMin 0xD1F0C8
+#define _Tweak_ThreatRangeMax 0xD1F0CC
 #define _Camera_StopUpdating 0xD89950
 #define _IsCollectorsEdition 0xDAA166
 #define _CarSelectTireSteerAngle 0xD32268
+#define _MinimapShowNonPursuitCops 0xD31368
+#define _MinimapShowPursuitCops 0xD31369
 
 float ZeroFloat = 0.0f;

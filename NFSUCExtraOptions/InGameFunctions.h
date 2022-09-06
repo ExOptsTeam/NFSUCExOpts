@@ -18,3 +18,6 @@ bool(*DALPauseStates_IsPaused)() = (bool(*)())0x521960;
 DWORD* (__thiscall* UCOM_Object_IList_Find)(DWORD* UCOM_Object_IList, char const* (__cdecl* iid)()) = (DWORD * (__thiscall*)(DWORD*, char const*(__cdecl*)()))0x5F6700;
 char const* (__cdecl* IPerpetrator_IIDName)() = (char const* (__cdecl*)())0x402240;
 void(*Game_SetCopsEnabled)(bool enabled) = (void(*)(bool))0x65C7C0;
+void(*Game_ForcePursuitStart)(int minHeatLevel) = (void(*)(int))0x65C840;
+void* (__thiscall* Attrib_Collection_GetData)(DWORD* Attrib_Collection, unsigned int attributeKey, unsigned int index) = (void* (__thiscall*)(DWORD*, unsigned int, unsigned int))0x4649B0;
+void*(*Attrib_DefaultDataArea)(unsigned int bytes) = (void*(*)(unsigned int))0x676490;

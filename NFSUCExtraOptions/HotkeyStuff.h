@@ -98,7 +98,7 @@ void Thing()
 		forceHeatLevel = !forceHeatLevel; // Toggle option
 		if (forceHeatLevel)
 		{
-			EnableHeatLevelOverride = 1;
+			ToggleHeatLevelOverride(1); // Force enable override
 			heatLevel = MinHeatLevel;
 			if (ShowMessage) Hud_ShowMessage("^Ultimate Force Heat Level hack is enabled.", 0);
 		}
@@ -106,7 +106,7 @@ void Thing()
 		{
 			// Re-read the override boolean from config file
 			CIniReader iniReader("NFSUCExtraOptionsSettings.ini");
-			EnableHeatLevelOverride = iniReader.ReadInteger("Pursuit", "HeatLevelOverride", 1) == 1;
+			ToggleHeatLevelOverride(iniReader.ReadInteger("Pursuit", "HeatLevelOverride", 0) != 0);
 			if (ShowMessage) Hud_ShowMessage("^Ultimate Force Heat Level hack is disabled.", 0);
 		}
 	}
@@ -127,6 +127,7 @@ void Thing()
 		if (ToggleCops)
 		{
 			if (ShowMessage) Hud_ShowMessage("^Cops are now enabled.", 0);
+			Game_ForcePursuitStart((int)heatLevel); //dbg
 		}
 		else
 		{

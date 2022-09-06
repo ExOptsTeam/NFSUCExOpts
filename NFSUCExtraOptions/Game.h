@@ -20,7 +20,7 @@ void Game_SetWorldHeat(float DesiredHeatLevel)
 				DWORD* PlayerPerp = UCOM_Object_IList_Find((DWORD*)PlayerISimable[1], IPerpetrator_IIDName);
 				if (PlayerPerp)
 				{
-					(*(int(__thiscall**)(DWORD*, float))(*PlayerPerp + 8))(PlayerPerp, DesiredHeatLevel); // AIPerpVehicle_SetHeat(AIPerpVehicle*, float)
+					(*(int(__thiscall**)(DWORD*, float))(*PlayerPerp + 8))(PlayerPerp, DesiredHeatLevel); // AIVehiclePerp_SetHeat(AIVehiclePerp*, float)
 				}
 			}
 		}

@@ -5,19 +5,19 @@
 
 #include "GlobalVariables.h"
 #include "InGameFunctions.h"
-#include "Helpers.h"
 
 //variables
-int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights, hotkeyFreezeCamera, hotkeyUnlockAllThings, hotkeyAutoDrive, CareerSingleRace, CareerBattle, CareerChallenge, TrafficLow, TrafficMed, TrafficHigh, ForceCarLOD, ForceTireLOD;
-bool EnableSaveLoadHotPos, ShowLanguageSelectScreen, ExOptsTeamTakeOver, EnableDebugWorldCamera, UnlockAllThings, ForceCollectorsEdition, EnableHeatLevelOverride, SkipMovies, SkipNISs, EnableSound, EnableMusic, ShowMessage, SkipCareerIntro, ProducerDemo, SkipPSA, DisableBootupOnlineLogin, DisableDoubleTapBrakeToReverse;
+int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights, hotkeyFreezeCamera, hotkeyUnlockAllThings, hotkeyAutoDrive, CareerSingleRace, CareerBattle, CareerChallenge, TrafficLow, TrafficMed, TrafficHigh, ForceCarLOD, ForceTireLOD, StartingCash, ProducerDemoStartingCash;
+bool EnableSaveLoadHotPos, ShowLanguageSelectScreen, ExOptsTeamTakeOver, EnableDebugWorldCamera, UnlockAllThings, ForceCollectorsEdition, EnableHeatLevelOverride, SkipMovies, SkipNISs, EnableSound, EnableMusic, ShowMessage, SkipCareerIntro, ProducerDemo, SkipPSA, DisableBootupOnlineLogin, DisableDoubleTapBrakeToReverse, PursuitActionMode, ForceStraightPursuit, ShowPursuitCops, ShowNonPursuitCops, UncensoredBustedScreen;
 char const* PlayerName;
-float GameSpeed, MinHeatLevel, MaxHeatLevel, CarSelectTireSteerAngle;
+float GameSpeed, MinHeatLevel, MaxHeatLevel, CarSelectTireSteerAngle, RadarRange, SpeedingLimit, ExcessiveSpeedingLimit, RecklessDrivingLimit;
 
 #include "EAMemcard.h"
 #include "FESplashScreen.h"
 #include "Game.h"
 
 #include "CodeCaves.h"
+#include "Helpers.h"
 #include "HotkeyStuff.h"
 
 void Init()
@@ -56,13 +56,24 @@ void Init()
 	static auto _PlayerName = iniReader.ReadString("Gameplay", "PlayerName", "0");
 	PlayerName = _PlayerName.c_str();
 	UnlockAllThings = iniReader.ReadInteger("Gameplay", "UnlockAllThings", 0) != 0;
+	StartingCash = iniReader.ReadInteger("Gameplay", "StartingCash", 0);
+	ProducerDemoStartingCash = iniReader.ReadInteger("Gameplay", "ProducerDemoStartingCash", 10000000);
 	ForceCollectorsEdition = iniReader.ReadInteger("Gameplay", "ForceCollectorsEdition", 1) != 0;
 	DisableDoubleTapBrakeToReverse = iniReader.ReadInteger("Gameplay", "DisableDoubleTapBrakeToReverse", 1) != 0;
 
 	// Pursuit
-	EnableHeatLevelOverride = iniReader.ReadInteger("Pursuit", "HeatLevelOverride", 0) == 1;
+	EnableHeatLevelOverride = iniReader.ReadInteger("Pursuit", "HeatLevelOverride", 0) != 0;
 	MinHeatLevel = iniReader.ReadFloat("Pursuit", "MinimumHeatLevel", 1.00f);
 	MaxHeatLevel = iniReader.ReadFloat("Pursuit", "MaximumHeatLevel", 5.00f);
+	PursuitActionMode = iniReader.ReadInteger("Pursuit", "PursuitActionMode", 0) != 0;
+	ForceStraightPursuit = iniReader.ReadInteger("Pursuit", "ForceStraightPursuit", 0) != 0;
+	ShowPursuitCops = iniReader.ReadInteger("Pursuit", "ShowPursuitCops", 1) != 0;
+	ShowNonPursuitCops = iniReader.ReadInteger("Pursuit", "ShowNonPursuitCops", 1) != 0;
+	RadarRange = iniReader.ReadFloat("Pursuit", "RadarRange", 300.0f);
+	UncensoredBustedScreen = iniReader.ReadInteger("Pursuit", "UncensoredBustedScreen", 0) != 0;
+	SpeedingLimit = iniReader.ReadFloat("Pursuit", "SpeedingLimit", 44.704f);
+	ExcessiveSpeedingLimit = iniReader.ReadFloat("Pursuit", "ExcessiveSpeedingLimit", 67.056f);
+	RecklessDrivingLimit = iniReader.ReadFloat("Pursuit", "RecklessDrivingLimit", 89.408f);
 
 	// Misc
 	SkipMovies = iniReader.ReadInteger("Misc", "SkipMovies", 0) != 0;
@@ -127,6 +138,10 @@ void Init()
 	injector::MakeRangedNOP(0x7BB40F, 0x7BB412, true); // add esp,4
 	injector::MakeCALL(0x7BB3FF, EA_Memcard_IMemcardFile_GetFilename, true);
 
+	// Starting Cash
+	injector::MakeJMP(0x647E17, StartingCashCodeCave, true); // GMW2Game::StartNewCareer
+	injector::WriteMemory<int>(0x5E77E3, ProducerDemoStartingCash, true); // FEBootFlowStateManager::InitStateList
+
 	// Force Collectors Edition
 	if (ForceCollectorsEdition)
 	{
@@ -147,8 +162,64 @@ void Init()
 		injector::WriteMemory<float*>(0x428DC7, &ZeroFloat, true); // disable double tap to reverse
 	}
 
-	// Handle Misc Options
+	// Unlock All Things
 	injector::WriteMemory<BYTE>(_UnlockAllThings, UnlockAllThings, true);
+
+	// Heat Level Override
+	ToggleHeatLevelOverride(EnableHeatLevelOverride);
+	injector::MakeJMP(0x432E07, ForceMaxHeatCodeCave_AIVehiclePerp_SetHeat, true); // AIVehiclePerp::SetHeat, Code cave to overide attributes.bin > heat > general_max_heat_level
+	injector::MakeJMP(0x4440FA, ForceMaxHeatCodeCave_AIVehicleHuman_dt, true); // AIVehicleHuman::~AIVehicleHuman
+	injector::MakeJMP(0x69758A, ForceMaxHeatCodeCave_EBountyPointsGained_dt, true); // EBountyPointsGained::~EBountyPointsGained, also has OOB fix
+	injector::MakeJMP(0x41A8D4, FixArrayOOBCodeCave_AIVehicleCopCar_CheckForPursuitForHeat, true); // AIVehicleCopCar::CheckForPursuitForHeat
+	injector::MakeJMP(0x41AA54, FixArrayOOBCodeCave_AIVehicleCopCar_CheckForPursuitForSpeed, true); // AIVehicleCopCar::CheckForPursuitForSpeed
+	injector::MakeJMP(0x41ABCE, FixArrayOOBCodeCave_AIVehicleCopCar_CheckForPursuitFor911Call, true); // AIVehicleCopCar::CheckForPursuitFor911Call
+	injector::MakeJMP(0x438142, FixArrayOOBCodeCave_AICopManager_SpawnPatrolCar, true); // AICopManager::CheckForPursuitForHeat
+
+	// Pursuit Action Game Mode - Harder Pursuits in Quick Races
+	if (PursuitActionMode)
+	{
+		// Replace Race Table (0x2283ECAF) with Threat Table (0xCA489018)
+		injector::WriteMemory<DWORD>(0x417F47, 0xCA489018, true); // AIPursuit::RefreshEscalationTables
+
+		// Replace Race Support (0xE5332008) with Threat Support (0xF3918F68)
+		injector::WriteMemory<DWORD>(0x417FB2, 0xF3918F68, true); // AIPursuit::RefreshEscalationTables
+
+		// Can Spawn Roadblocks in Quick Race
+		//injector::MakeNOP(0x409E60, 6, true); // AIPursuit::RequestRoadBlock
+
+		// Cops Can Call Support in Quick Race
+		//injector::MakeNOP(0x418877, 2, true); // AIPursuit::RequestGroundSupport
+
+		// Helicopter
+		//injector::MakeNOP(0x41854B, 2, true); // AIPursuit::CopRequest
+
+	}
+
+	// Force Straight Pursuit (No support units or roadblocks)
+	if (ForceStraightPursuit) injector::WriteMemory<int>(_Tweak_ForceStraightPursuit, ForceStraightPursuit, true);
+
+	// Show Pursuit Cops
+	injector::WriteMemory<BYTE>(_MinimapShowPursuitCops, ShowPursuitCops, true);
+
+	// Show Non-Pursuit Cops
+	injector::WriteMemory<BYTE>(_MinimapShowNonPursuitCops, ShowNonPursuitCops, true);
+
+	// Radar Range
+	injector::WriteMemory<float>(_Tweak_RadarRange, RadarRange, true);
+
+	// Uncensored Busted Screen
+	if (UncensoredBustedScreen)
+	{
+		injector::WriteMemory<BYTE>(0x457D15, 0x00, true); // sub_457830, FacePixelation::mPixelationOn = 0
+		injector::WriteMemory<BYTE>(0x45A944, 0x00, true); // sub_45A7C0
+	}
+
+	// Infractions
+	injector::WriteMemory<float>(_Tweak_SpeedingLimit, SpeedingLimit, true);
+	injector::WriteMemory<float>(_Tweak_RacingLimit, ExcessiveSpeedingLimit, true);
+	injector::WriteMemory<float>(_Tweak_RecklessDrivingLimit, RecklessDrivingLimit, true);
+
+	// Handle Misc Options
 	if (SkipMovies) injector::WriteMemory<BYTE>(_SkipMovies, SkipMovies, true);
 	//if (SkipNISs) injector::WriteMemory<BYTE>(_SkipNISs, SkipNISs, true);
 	if (EnableSound) injector::WriteMemory<BYTE>(_IsSoundEnabled, EnableSound, true);

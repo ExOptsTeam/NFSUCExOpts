@@ -1,5 +1,23 @@
 #pragma once
 
+void ToggleHeatLevelOverride(bool Enabled)
+{
+	EnableHeatLevelOverride = Enabled;
+
+	if (Enabled)
+	{
+		// Modify threat range tweaks (unused??)
+		*(int*)_Tweak_ThreatRangeMin = (int)MinHeatLevel;
+		*(int*)_Tweak_ThreatRangeMax = (int)MaxHeatLevel;
+	}
+	else
+	{
+		// Modify threat range tweaks (unused??)
+		*(int*)_Tweak_ThreatRangeMin = 1;
+		*(int*)_Tweak_ThreatRangeMax = 5;
+	}
+}
+
 DWORD* GetPlayerPVehicle()
 {
 	DWORD* ISimableFromIPlayer, * ISimableFromIVehicle, * PlayerPVehicle;
