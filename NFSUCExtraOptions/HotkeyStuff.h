@@ -127,7 +127,6 @@ void Thing()
 		if (ToggleCops)
 		{
 			if (ShowMessage) Hud_ShowMessage("^Cops are now enabled.", 0);
-			Game_ForcePursuitStart((int)heatLevel); //dbg
 		}
 		else
 		{

@@ -39,3 +39,13 @@ DWORD* GetPlayerPVehicle()
 
 	return 0;
 }
+
+int Return0Hook()
+{
+	return 0;
+}
+
+float Return0fHook()
+{
+	return 0.0f;
+}

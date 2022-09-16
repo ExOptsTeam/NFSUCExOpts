@@ -8,7 +8,7 @@
 
 //variables
 int hotkeyToggleForceHeat, hotkeyForceHeatLevel, hotkeyToggleCops, hotkeyToggleCopLights, hotkeyToggleHeadlights, hotkeyFreezeCamera, hotkeyUnlockAllThings, hotkeyAutoDrive, CareerSingleRace, CareerBattle, CareerChallenge, TrafficLow, TrafficMed, TrafficHigh, ForceCarLOD, ForceTireLOD, StartingCash, ProducerDemoStartingCash;
-bool EnableSaveLoadHotPos, ShowLanguageSelectScreen, ExOptsTeamTakeOver, EnableDebugWorldCamera, UnlockAllThings, ForceCollectorsEdition, EnableHeatLevelOverride, SkipMovies, SkipNISs, EnableSound, EnableMusic, ShowMessage, SkipCareerIntro, ProducerDemo, SkipPSA, DisableBootupOnlineLogin, DisableDoubleTapBrakeToReverse, PursuitActionMode, ForceStraightPursuit, ShowPursuitCops, ShowNonPursuitCops, UncensoredBustedScreen;
+bool EnableSaveLoadHotPos, ShowLanguageSelectScreen, ExOptsTeamTakeOver, EnableDebugWorldCamera, UnlockAllThings, ForceCollectorsEdition, EnableHeatLevelOverride, SkipMovies, SkipNISs, EnableSound, EnableMusic, ShowMessage, SkipCareerIntro, ProducerDemo, SkipPSA, DisableBootupOnlineLogin, DisableDoubleTapBrakeToReverse, PursuitActionMode, ForceStraightPursuit, ShowPursuitCops, ShowNonPursuitCops, UncensoredBustedScreen, NoRevLimiter;
 char const* PlayerName;
 float GameSpeed, MinHeatLevel, MaxHeatLevel, CarSelectTireSteerAngle, RadarRange, SpeedingLimit, ExcessiveSpeedingLimit, RecklessDrivingLimit;
 
@@ -59,6 +59,7 @@ void Init()
 	StartingCash = iniReader.ReadInteger("Gameplay", "StartingCash", 0);
 	ProducerDemoStartingCash = iniReader.ReadInteger("Gameplay", "ProducerDemoStartingCash", 10000000);
 	ForceCollectorsEdition = iniReader.ReadInteger("Gameplay", "ForceCollectorsEdition", 1) != 0;
+	NoRevLimiter = iniReader.ReadInteger("Gameplay", "NoRevLimiter", 0) != 0;
 	DisableDoubleTapBrakeToReverse = iniReader.ReadInteger("Gameplay", "DisableDoubleTapBrakeToReverse", 1) != 0;
 
 	// Pursuit
@@ -154,6 +155,15 @@ void Init()
 	if (ExOptsTeamTakeOver)
 	{
 		injector::WriteMemory(0xBEC0E0, &FE_FESplashScreen_InitializeScreenAptFuncs, true);
+	}
+
+	// No rev limiter
+	if (NoRevLimiter)
+	{
+		injector::WriteMemory(0xC1C688, &Return0Hook, true); // Engine::`vftable'{for `Sim::IServiceable'}, Engine::UseRevLimiter(void)
+		injector::WriteMemory(0xC1C8A0, &Return0Hook, true); // EngineRacer::`vftable'{for `Sim::IServiceable'}, Engine::UseRevLimiter(void)
+		injector::WriteMemory(0xC1CAC8, &Return0Hook, true); // EngineSpline::`vftable'{for `Sim::IServiceable'}, Engine::UseRevLimiter(void)
+		injector::WriteMemory(0xC1CCE0, &Return0Hook, true); // EngineTraffic::`vftable'{for `Sim::IServiceable'}, Engine::UseRevLimiter(void)
 	}
 
 	// Disable Double-Tap Brake to shift to Reverse
