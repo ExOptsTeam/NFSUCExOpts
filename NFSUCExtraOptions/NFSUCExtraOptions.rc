@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,800
- PRODUCTVERSION 1,1,0,800
+ FILEVERSION 1,1,0,1337
+ PRODUCTVERSION 1,1,0,1337
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +69,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ExOpts Team"
             VALUE "FileDescription", "NFS Undercover Extra Options"
-            VALUE "FileVersion", "1.1.0.800"
+            VALUE "FileVersion", "1.1.0.1337"
             VALUE "InternalName", "NFSUCExtraOptions.asi"
             VALUE "LegalCopyright", "Copyright (C) 2022 ExOpts Team. No rights reserved."
             VALUE "OriginalFilename", "NFSUCExtraOptions.asi"
             VALUE "ProductName", "NFS Undercover Extra Options"
-            VALUE "ProductVersion", "1.1.0.800"
+            VALUE "ProductVersion", "1.1.0.1337"
         END
     END
     BLOCK "VarFileInfo"
